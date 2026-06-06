@@ -10,6 +10,8 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileDown, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
+// @ts-ignore
+import domtoimage from "dom-to-image-more";
 
 export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -29,67 +31,51 @@ export default function Home() {
     setIsGenerating(true);
 
     try {
-      const html2canvas = (await import("html2canvas")).default;
+      const el = previewRef.current;
+      const scale = 2;
 
-      // Strip SVG icons and get clean HTML (inline styles only, no Tailwind/oklch)
-      const clone = previewRef.current.cloneNode(true) as HTMLElement;
-      clone.querySelectorAll("svg").forEach((s) => s.remove());
-      const resumeHTML = clone.outerHTML;
-
-      // Render in an isolated iframe with NO external CSS → avoids oklch crash
-      const iframe = document.createElement("iframe");
-      iframe.style.cssText =
-        "position:fixed;top:-9999px;left:-9999px;width:794px;border:none;visibility:hidden;";
-      document.body.appendChild(iframe);
-
-      const iDoc = iframe.contentDocument!;
-      iDoc.open();
-      iDoc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
-        <style>*{box-sizing:border-box;margin:0;padding:0;}body{background:#fff;font-family:Arial,Helvetica,sans-serif;}</style>
-      </head><body>${resumeHTML}</body></html>`);
-      iDoc.close();
-
-      // Let the iframe paint
-      await new Promise((r) => setTimeout(r, 250));
-
-      const target = iDoc.body.firstElementChild as HTMLElement;
-      iframe.style.height = target.scrollHeight + "px";
-
-      const canvas = await html2canvas(target, {
-        scale: 2,
-        backgroundColor: "#ffffff",
-        logging: false,
-        width: target.scrollWidth,
-        height: target.scrollHeight,
-        windowWidth: target.scrollWidth,
-        windowHeight: target.scrollHeight,
+      // dom-to-image-more renders via SVG foreignObject — fully supports oklch & modern CSS
+      const dataUrl = await domtoimage.toPng(el, {
+        width: el.scrollWidth * scale,
+        height: el.scrollHeight * scale,
+        style: {
+          transform: `scale(${scale})`,
+          transformOrigin: "top left",
+          width: `${el.scrollWidth}px`,
+          height: `${el.scrollHeight}px`,
+        },
       });
 
-      document.body.removeChild(iframe);
+      const img = new Image();
+      img.src = dataUrl;
+      await new Promise((r) => { img.onload = r; });
 
-      // Build PDF — split into A4 pages if needed
       const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
-      const pageHeightPx = Math.floor((canvas.width * pageH) / pageW);
+
+      const imgW = img.naturalWidth;
+      const imgH = img.naturalHeight;
+      const pageHeightPx = Math.floor((imgW * pageH) / pageW);
       let offset = 0;
 
-      while (offset < canvas.height) {
-        const sliceH = Math.min(pageHeightPx, canvas.height - offset);
-        const sliceCanvas = document.createElement("canvas");
-        sliceCanvas.width = canvas.width;
-        sliceCanvas.height = sliceH;
-        sliceCanvas.getContext("2d")!.drawImage(
-          canvas, 0, offset, canvas.width, sliceH, 0, 0, canvas.width, sliceH
-        );
+      const offscreenCanvas = document.createElement("canvas");
+      offscreenCanvas.width = imgW;
+
+      while (offset < imgH) {
+        const sliceH = Math.min(pageHeightPx, imgH - offset);
+        offscreenCanvas.height = sliceH;
+        const ctx = offscreenCanvas.getContext("2d")!;
+        ctx.clearRect(0, 0, imgW, sliceH);
+        ctx.drawImage(img, 0, offset, imgW, sliceH, 0, 0, imgW, sliceH);
+
         if (offset > 0) pdf.addPage();
-        pdf.addImage(sliceCanvas.toDataURL("image/png"), "PNG", 0, 0, pageW, (sliceH * pageW) / canvas.width);
+        pdf.addImage(offscreenCanvas.toDataURL("image/png"), "PNG", 0, 0, pageW, (sliceH * pageW) / imgW);
         offset += sliceH;
       }
 
       const name = formData.personalInfo.fullName?.replace(/\s+/g, "-") || "resume";
       pdf.save(`${name}-resume.pdf`);
-
       toast({ title: "✅ تم التحميل", description: "تم حفظ السيرة الذاتية كملف PDF" });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
