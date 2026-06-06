@@ -1,0 +1,1 @@
+- [Chromium on Replit](chromium-replit.md) — chromium installed via nix; path changes per nix store hash; resolve with `which chromium` if broken

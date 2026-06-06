@@ -9,10 +9,9 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileDown, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import jsPDF from "jspdf";
-// @ts-ignore
-import domtoimage from "dom-to-image-more";
 import { useLanguage } from "@/hooks/useLanguage";
+
+const API_BASE = `${import.meta.env.BASE_URL}api`.replace(/\/+/g, "/");
 
 export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -33,50 +32,30 @@ export default function Home() {
     setIsGenerating(true);
 
     try {
-      const el = previewRef.current;
-      const scale = 2;
+      const html = previewRef.current.outerHTML;
+      const filename = (formData.personalInfo.fullName?.replace(/\s+/g, "-") || "resume") + "-resume";
 
-      const dataUrl = await domtoimage.toPng(el, {
-        width: el.scrollWidth * scale,
-        height: el.scrollHeight * scale,
-        style: {
-          transform: `scale(${scale})`,
-          transformOrigin: "top left",
-          width: `${el.scrollWidth}px`,
-          height: `${el.scrollHeight}px`,
-        },
+      const response = await fetch(`${API_BASE}/pdf`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ html, filename }),
       });
 
-      const img = new Image();
-      img.src = dataUrl;
-      await new Promise((r) => { img.onload = r; });
-
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
-      const pageW = pdf.internal.pageSize.getWidth();
-      const pageH = pdf.internal.pageSize.getHeight();
-
-      const imgW = img.naturalWidth;
-      const imgH = img.naturalHeight;
-      const pageHeightPx = Math.floor((imgW * pageH) / pageW);
-      let offset = 0;
-
-      const offscreenCanvas = document.createElement("canvas");
-      offscreenCanvas.width = imgW;
-
-      while (offset < imgH) {
-        const sliceH = Math.min(pageHeightPx, imgH - offset);
-        offscreenCanvas.height = sliceH;
-        const ctx = offscreenCanvas.getContext("2d")!;
-        ctx.clearRect(0, 0, imgW, sliceH);
-        ctx.drawImage(img, 0, offset, imgW, sliceH, 0, 0, imgW, sliceH);
-
-        if (offset > 0) pdf.addPage();
-        pdf.addImage(offscreenCanvas.toDataURL("image/png"), "PNG", 0, 0, pageW, (sliceH * pageW) / imgW);
-        offset += sliceH;
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: response.statusText }));
+        throw new Error(err.error || response.statusText);
       }
 
-      const name = formData.personalInfo.fullName?.replace(/\s+/g, "-") || "resume";
-      pdf.save(`${name}-resume.pdf`);
+      const blob = await response.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${filename}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
       toast({ title: t.downloadSuccess, description: t.downloadSuccessDesc });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
