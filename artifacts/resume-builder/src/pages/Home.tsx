@@ -9,8 +9,6 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileDown, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import html2canvas from "html2canvas";
-import jsPDF from "jspdf";
 
 export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -25,70 +23,79 @@ export default function Home() {
 
   const formData = form.watch();
 
-  const handleDownloadPDF = async () => {
+  const handleDownloadPDF = () => {
     if (!previewRef.current) return;
     setIsGenerating(true);
+
     try {
-      const element = previewRef.current;
-
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-        windowWidth: element.scrollWidth,
-        windowHeight: element.scrollHeight,
-      });
-
-      const imgData = canvas.toDataURL("image/jpeg", 0.95);
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = canvas.width;
-      const imgHeight = canvas.height;
-      const ratio = imgWidth / imgHeight;
-      const pdfImgHeight = pdfWidth / ratio;
-
-      if (pdfImgHeight <= pdfHeight) {
-        pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfImgHeight);
-      } else {
-        let yOffset = 0;
-        let remaining = imgHeight;
-        while (remaining > 0) {
-          const sliceHeight = Math.min(remaining, (imgWidth * pdfHeight) / pdfWidth);
-          const sliceCanvas = document.createElement("canvas");
-          sliceCanvas.width = imgWidth;
-          sliceCanvas.height = sliceHeight;
-          const ctx = sliceCanvas.getContext("2d")!;
-          ctx.drawImage(canvas, 0, yOffset, imgWidth, sliceHeight, 0, 0, imgWidth, sliceHeight);
-          const sliceData = sliceCanvas.toDataURL("image/jpeg", 0.95);
-          if (yOffset > 0) pdf.addPage();
-          pdf.addImage(sliceData, "JPEG", 0, 0, pdfWidth, (sliceHeight * pdfWidth) / imgWidth);
-          yOffset += sliceHeight;
-          remaining -= sliceHeight;
-        }
-      }
-
+      const content = previewRef.current.innerHTML;
       const name = formData.personalInfo.fullName
         ? formData.personalInfo.fullName.replace(/\s+/g, "-")
         : "resume";
-      pdf.save(`${name}-resume.pdf`);
+
+      const printWindow = window.open("", "_blank", "width=900,height=700");
+      if (!printWindow) {
+        toast({
+          title: "خطأ",
+          description: "يرجى السماح بالنوافذ المنبثقة ثم المحاولة مجدداً.",
+          variant: "destructive",
+        });
+        setIsGenerating(false);
+        return;
+      }
+
+      printWindow.document.write(`<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8" />
+  <title>${name}-resume</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11pt;
+      color: #111;
+      background: #fff;
+    }
+    .resume-wrapper {
+      width: 210mm;
+      min-height: 297mm;
+      padding: 15mm;
+    }
+    /* Hide lucide SVG icons in print */
+    svg { display: none !important; }
+    /* Restore inline spans that contain icons */
+    span { display: inline !important; }
+    @media print {
+      html, body { width: 210mm; }
+      @page { size: A4; margin: 0; }
+      .resume-wrapper { padding: 15mm; }
+    }
+  </style>
+</head>
+<body>
+  <div class="resume-wrapper">${content}</div>
+  <script>
+    window.onload = function() {
+      setTimeout(function() {
+        window.print();
+        window.close();
+      }, 300);
+    };
+  </script>
+</body>
+</html>`);
+      printWindow.document.close();
 
       toast({
-        title: "تم التحميل",
-        description: "تم تحميل السيرة الذاتية بنجاح كملف PDF",
+        title: "تم",
+        description: "احفظ الملف كـ PDF من نافذة الطباعة",
       });
     } catch (err) {
       console.error("PDF generation error:", err);
       toast({
         title: "خطأ",
-        description: "حدث خطأ أثناء توليد الملف. حاول مرة أخرى.",
+        description: "حدث خطأ أثناء توليد الملف.",
         variant: "destructive",
       });
     } finally {
@@ -160,11 +167,11 @@ export default function Home() {
           </Button>
         </div>
 
-        {/* Preview area — scrollable, full CV visible */}
+        {/* Preview area */}
         <ScrollArea className="flex-1">
           <div className="py-6 px-4 flex justify-center items-start">
             <div
-              className="shadow-2xl ring-1 ring-black/10 origin-top-center"
+              className="shadow-2xl ring-1 ring-black/10"
               style={{
                 transform: "scale(0.68)",
                 transformOrigin: "top center",

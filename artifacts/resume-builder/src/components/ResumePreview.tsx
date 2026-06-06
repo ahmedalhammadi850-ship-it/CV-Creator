@@ -1,5 +1,4 @@
 import { Resume } from "@/types/resume";
-import { Separator } from "@/components/ui/separator";
 import { Mail, Phone, MapPin, Linkedin, Globe, Github } from "lucide-react";
 import React from "react";
 
@@ -32,51 +31,51 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
     return (
       <div
         ref={ref}
-        className="resume-preview-print bg-white text-gray-900 w-[210mm] min-h-[297mm] p-[12mm] flex flex-col font-sans"
-        style={{ boxSizing: "border-box" }}
+        className="bg-white text-gray-900 w-[210mm] min-h-[297mm] p-[15mm] flex flex-col"
+        style={{ boxSizing: "border-box", fontFamily: "Arial, Helvetica, sans-serif" }}
       >
         {/* Header */}
         <header className="text-center mb-5 pb-4 border-b-2 border-[#1e3a5f]">
-          <h1 className="text-3xl font-bold tracking-tight text-[#1e3a5f]">
+          <h1 style={{ fontSize: "22px", fontWeight: "bold", color: "#1e3a5f", marginBottom: "4px" }}>
             {personalInfo.fullName || "الاسم الكامل"}
           </h1>
           {personalInfo.jobTitle && (
-            <p className="text-base text-[#3b5f8a] mt-1 font-medium">
+            <p style={{ fontSize: "13px", color: "#3b5f8a", marginBottom: "6px", fontWeight: "500" }}>
               {personalInfo.jobTitle}
             </p>
           )}
           {hasContactInfo && (
-            <div className="flex flex-wrap justify-center items-center gap-x-3 gap-y-1 mt-3 text-xs text-gray-600">
+            <div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: "6px 14px", fontSize: "11px", color: "#444" }}>
               {personalInfo.email && (
-                <span className="flex items-center gap-1">
-                  <Mail className="w-3 h-3" />{personalInfo.email}
+                <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <Mail size={11} />{personalInfo.email}
                 </span>
               )}
               {personalInfo.phone && (
-                <span className="flex items-center gap-1">
-                  <Phone className="w-3 h-3" />{personalInfo.phone}
+                <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <Phone size={11} />{personalInfo.phone}
                 </span>
               )}
               {personalInfo.location && (
-                <span className="flex items-center gap-1">
-                  <MapPin className="w-3 h-3" />{personalInfo.location}
+                <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <MapPin size={11} />{personalInfo.location}
                 </span>
               )}
               {personalInfo.linkedin && (
-                <span className="flex items-center gap-1">
-                  <Linkedin className="w-3 h-3" />
+                <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <Linkedin size={11} />
                   {personalInfo.linkedin.replace(/^https?:\/\/(www\.)?linkedin\.com\/in\//, "")}
                 </span>
               )}
               {personalInfo.github && (
-                <span className="flex items-center gap-1">
-                  <Github className="w-3 h-3" />
+                <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <Github size={11} />
                   {personalInfo.github.replace(/^https?:\/\/(www\.)?github\.com\//, "")}
                 </span>
               )}
               {personalInfo.website && (
-                <span className="flex items-center gap-1">
-                  <Globe className="w-3 h-3" />
+                <span style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                  <Globe size={11} />
                   {personalInfo.website.replace(/^https?:\/\/(www\.)?/, "")}
                 </span>
               )}
@@ -85,40 +84,40 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
         </header>
 
         {/* Content */}
-        <div className="flex-1 flex flex-col gap-4 text-sm">
+        <div style={{ display: "flex", flexDirection: "column", gap: "14px", fontSize: "11px" }}>
 
           {/* Professional Summary */}
           {summary && (
             <section>
-              <h2 className="text-[11px] font-bold text-[#1e3a5f] uppercase tracking-widest border-b border-[#1e3a5f] pb-1 mb-2">
+              <h2 style={{ fontSize: "12px", fontWeight: "bold", color: "#1e3a5f", textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1px solid #1e3a5f", paddingBottom: "3px", marginBottom: "6px" }}>
                 Professional Summary
               </h2>
-              <p className="leading-relaxed text-gray-700 text-[11px]">{summary}</p>
+              <p style={{ lineHeight: "1.6", color: "#333", fontSize: "11px" }}>{summary}</p>
             </section>
           )}
 
           {/* Work Experience */}
           {experience.length > 0 && (
             <section>
-              <h2 className="text-[11px] font-bold text-[#1e3a5f] uppercase tracking-widest border-b border-[#1e3a5f] pb-1 mb-2">
+              <h2 style={{ fontSize: "12px", fontWeight: "bold", color: "#1e3a5f", textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1px solid #1e3a5f", paddingBottom: "3px", marginBottom: "6px" }}>
                 Work Experience
               </h2>
-              <div className="space-y-3">
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 {experience.map((exp, i) => (
                   <div key={i}>
-                    <div className="flex justify-between items-start">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                       <div>
-                        <p className="font-bold text-[11px] text-gray-900">{exp.title}</p>
-                        <p className="text-[10px] text-[#3b5f8a] font-medium">
+                        <p style={{ fontWeight: "bold", fontSize: "11px", color: "#111" }}>{exp.title}</p>
+                        <p style={{ fontSize: "11px", color: "#3b5f8a", fontWeight: "600" }}>
                           {exp.company}{exp.city ? `, ${exp.city}` : ""}
                         </p>
                       </div>
-                      <p className="text-[10px] text-gray-500 whitespace-nowrap">
+                      <p style={{ fontSize: "11px", color: "#666", whiteSpace: "nowrap" }}>
                         {exp.startDate} – {exp.current ? "Present" : exp.endDate}
                       </p>
                     </div>
                     {exp.description && (
-                      <p className="mt-1 text-[10px] text-gray-600 leading-relaxed whitespace-pre-wrap">
+                      <p style={{ marginTop: "4px", fontSize: "11px", color: "#444", lineHeight: "1.5", whiteSpace: "pre-wrap" }}>
                         {exp.description}
                       </p>
                     )}
@@ -131,25 +130,23 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
           {/* Projects */}
           {projects.length > 0 && (
             <section>
-              <h2 className="text-[11px] font-bold text-[#1e3a5f] uppercase tracking-widest border-b border-[#1e3a5f] pb-1 mb-2">
+              <h2 style={{ fontSize: "12px", fontWeight: "bold", color: "#1e3a5f", textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1px solid #1e3a5f", paddingBottom: "3px", marginBottom: "6px" }}>
                 Projects
               </h2>
-              <div className="space-y-3">
+              <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 {projects.map((proj, i) => (
                   <div key={i}>
-                    <div className="flex justify-between items-start">
-                      <p className="font-bold text-[11px] text-gray-900">{proj.name}</p>
-                      {proj.year && (
-                        <p className="text-[10px] text-gray-500">{proj.year}</p>
-                      )}
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                      <p style={{ fontWeight: "bold", fontSize: "11px", color: "#111" }}>{proj.name}</p>
+                      {proj.year && <p style={{ fontSize: "11px", color: "#666" }}>{proj.year}</p>}
                     </div>
                     {proj.technologies && (
-                      <p className="text-[10px] text-[#3b5f8a] italic mt-0.5">
+                      <p style={{ fontSize: "11px", color: "#3b5f8a", fontStyle: "italic", marginTop: "2px" }}>
                         {proj.technologies}
                       </p>
                     )}
                     {proj.description && (
-                      <p className="mt-1 text-[10px] text-gray-600 leading-relaxed whitespace-pre-wrap">
+                      <p style={{ marginTop: "3px", fontSize: "11px", color: "#444", lineHeight: "1.5", whiteSpace: "pre-wrap" }}>
                         {proj.description}
                       </p>
                     )}
@@ -162,22 +159,22 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
           {/* Education */}
           {education.length > 0 && (
             <section>
-              <h2 className="text-[11px] font-bold text-[#1e3a5f] uppercase tracking-widest border-b border-[#1e3a5f] pb-1 mb-2">
+              <h2 style={{ fontSize: "12px", fontWeight: "bold", color: "#1e3a5f", textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1px solid #1e3a5f", paddingBottom: "3px", marginBottom: "6px" }}>
                 Education
               </h2>
-              <div className="space-y-2">
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 {education.map((edu, i) => (
-                  <div key={i} className="flex justify-between items-start">
+                  <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <div>
-                      <p className="font-bold text-[11px] text-gray-900">
+                      <p style={{ fontWeight: "bold", fontSize: "11px", color: "#111" }}>
                         {edu.degree} in {edu.fieldOfStudy}
                       </p>
-                      <p className="text-[10px] text-[#3b5f8a] font-medium">{edu.institution}</p>
+                      <p style={{ fontSize: "11px", color: "#3b5f8a", fontWeight: "600" }}>{edu.institution}</p>
                       {edu.gpa && (
-                        <p className="text-[10px] text-gray-500">GPA: {edu.gpa}</p>
+                        <p style={{ fontSize: "11px", color: "#666" }}>GPA: {edu.gpa}</p>
                       )}
                     </div>
-                    <p className="text-[10px] text-gray-500">{edu.year}</p>
+                    <p style={{ fontSize: "11px", color: "#666" }}>{edu.year}</p>
                   </div>
                 ))}
               </div>
@@ -187,15 +184,15 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
           {/* Skills */}
           {(technicalSkills.length > 0 || softSkills.length > 0) && (
             <section>
-              <h2 className="text-[11px] font-bold text-[#1e3a5f] uppercase tracking-widest border-b border-[#1e3a5f] pb-1 mb-2">
+              <h2 style={{ fontSize: "12px", fontWeight: "bold", color: "#1e3a5f", textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1px solid #1e3a5f", paddingBottom: "3px", marginBottom: "6px" }}>
                 Skills
               </h2>
               {technicalSkills.length > 0 && (
-                <div className="mb-2">
-                  <p className="text-[9px] font-bold text-gray-500 uppercase mb-1">Technical</p>
-                  <div className="flex flex-wrap gap-1">
+                <div style={{ marginBottom: "6px" }}>
+                  <p style={{ fontSize: "11px", fontWeight: "bold", color: "#555", marginBottom: "4px" }}>Technical Skills:</p>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
                     {technicalSkills.map((s, i) => (
-                      <span key={i} className="text-[9px] px-2 py-0.5 bg-[#e8f0f7] text-[#1e3a5f] rounded font-medium">
+                      <span key={i} style={{ fontSize: "11px", padding: "2px 8px", backgroundColor: "#e8f0f7", color: "#1e3a5f", borderRadius: "3px", fontWeight: "500" }}>
                         {s}
                       </span>
                     ))}
@@ -204,10 +201,10 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
               )}
               {softSkills.length > 0 && (
                 <div>
-                  <p className="text-[9px] font-bold text-gray-500 uppercase mb-1">Soft Skills</p>
-                  <div className="flex flex-wrap gap-1">
+                  <p style={{ fontSize: "11px", fontWeight: "bold", color: "#555", marginBottom: "4px" }}>Soft Skills:</p>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
                     {softSkills.map((s, i) => (
-                      <span key={i} className="text-[9px] px-2 py-0.5 border border-gray-200 text-gray-600 rounded font-medium">
+                      <span key={i} style={{ fontSize: "11px", padding: "2px 8px", border: "1px solid #ccc", color: "#555", borderRadius: "3px" }}>
                         {s}
                       </span>
                     ))}
@@ -217,31 +214,31 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
             </section>
           )}
 
-          {/* Languages + Certifications side by side */}
+          {/* Languages + Certifications */}
           {(languages.length > 0 || certifications.length > 0) && (
-            <div className="grid grid-cols-2 gap-4">
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               {languages.length > 0 && (
                 <section>
-                  <h2 className="text-[11px] font-bold text-[#1e3a5f] uppercase tracking-widest border-b border-[#1e3a5f] pb-1 mb-2">
+                  <h2 style={{ fontSize: "12px", fontWeight: "bold", color: "#1e3a5f", textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1px solid #1e3a5f", paddingBottom: "3px", marginBottom: "6px" }}>
                     Languages
                   </h2>
                   {languages.map((lang, i) => (
-                    <div key={i} className="flex justify-between text-[10px]">
-                      <span className="text-gray-900">{lang.name}</span>
-                      <span className="text-gray-500">{lang.proficiency}</span>
+                    <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", marginBottom: "3px" }}>
+                      <span style={{ color: "#111" }}>{lang.name}</span>
+                      <span style={{ color: "#666" }}>{lang.proficiency}</span>
                     </div>
                   ))}
                 </section>
               )}
               {certifications.length > 0 && (
                 <section>
-                  <h2 className="text-[11px] font-bold text-[#1e3a5f] uppercase tracking-widest border-b border-[#1e3a5f] pb-1 mb-2">
+                  <h2 style={{ fontSize: "12px", fontWeight: "bold", color: "#1e3a5f", textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1px solid #1e3a5f", paddingBottom: "3px", marginBottom: "6px" }}>
                     Certifications
                   </h2>
                   {certifications.map((cert, i) => (
-                    <div key={i} className="mb-1">
-                      <p className="text-[10px] font-bold text-gray-900">{cert.name}</p>
-                      <div className="flex justify-between text-[9px] text-gray-500">
+                    <div key={i} style={{ marginBottom: "5px" }}>
+                      <p style={{ fontSize: "11px", fontWeight: "bold", color: "#111" }}>{cert.name}</p>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", color: "#666" }}>
                         <span>{cert.issuer}</span>
                         <span>{cert.year}</span>
                       </div>
