@@ -62,7 +62,7 @@ export default defineConfig({
     port,
     strictPort: true,
     host: "0.0.0.0",
-    allowedHosts: "all",
+    allowedHosts: [".replit.dev", ".repl.co", "localhost", "127.0.0.1"],
     fs: {
       strict: false,
     },
@@ -70,6 +70,6 @@ export default defineConfig({
   preview: {
     port,
     host: "0.0.0.0",
-    allowedHosts: "all",
+    allowedHosts: [".replit.dev", ".repl.co", "localhost", "127.0.0.1"],
   },
 });
