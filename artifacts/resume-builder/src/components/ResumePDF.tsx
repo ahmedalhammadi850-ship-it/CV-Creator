@@ -4,28 +4,13 @@ import {
   Text,
   View,
   StyleSheet,
-  Font,
 } from "@react-pdf/renderer";
 import { Resume } from "@/types/resume";
-
-Font.register({
-  family: "Amiri",
-  fonts: [
-    {
-      src: "https://fonts.gstatic.com/s/amiri/v27/J7aRnpd8CGxBHqUpvrIw74NL.woff2",
-      fontWeight: "normal",
-    },
-    {
-      src: "https://fonts.gstatic.com/s/amiri/v27/J7acnpd8CGxBHpUutLMA7w.woff2",
-      fontWeight: "bold",
-    },
-  ],
-});
 
 const styles = StyleSheet.create({
   page: {
     padding: "15mm 15mm 15mm 15mm",
-    fontFamily: "Amiri",
+    fontFamily: "Helvetica",
     fontSize: 10,
     color: "#1a1a2e",
     backgroundColor: "#ffffff",
