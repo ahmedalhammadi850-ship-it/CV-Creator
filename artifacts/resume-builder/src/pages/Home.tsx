@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileDown, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import jsPDF from "jspdf";
 
 export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -23,79 +24,73 @@ export default function Home() {
 
   const formData = form.watch();
 
-  const handleDownloadPDF = () => {
+  const handleDownloadPDF = async () => {
     if (!previewRef.current) return;
     setIsGenerating(true);
 
     try {
-      const content = previewRef.current.innerHTML;
-      const name = formData.personalInfo.fullName
-        ? formData.personalInfo.fullName.replace(/\s+/g, "-")
-        : "resume";
+      // Dynamically import html2canvas to avoid SSR issues
+      const html2canvas = (await import("html2canvas")).default;
 
-      const printWindow = window.open("", "_blank", "width=900,height=700");
-      if (!printWindow) {
-        toast({
-          title: "خطأ",
-          description: "يرجى السماح بالنوافذ المنبثقة ثم المحاولة مجدداً.",
-          variant: "destructive",
-        });
-        setIsGenerating(false);
-        return;
+      const canvas = await html2canvas(previewRef.current, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+        onclone: (_doc: Document, el: HTMLElement) => {
+          // Remove all SVG icons — they can cause html2canvas to fail
+          el.querySelectorAll("svg").forEach((svg) => svg.remove());
+          // Remove any transform from wrapper ancestors
+          el.style.transform = "none";
+          el.style.transformOrigin = "unset";
+        },
+      });
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+
+      const pageW = pdf.internal.pageSize.getWidth();
+      const pageH = pdf.internal.pageSize.getHeight();
+      const imgW = canvas.width;
+      const imgH = canvas.height;
+      const ratio = imgW / imgH;
+
+      // If content fits in one page
+      if (pageW / ratio <= pageH) {
+        pdf.addImage(imgData, "PNG", 0, 0, pageW, pageW / ratio);
+      } else {
+        // Multi-page: slice the canvas into A4-sized pages
+        const pageHeightPx = Math.floor((imgW * pageH) / pageW);
+        let offset = 0;
+
+        while (offset < imgH) {
+          const sliceH = Math.min(pageHeightPx, imgH - offset);
+          const pageCanvas = document.createElement("canvas");
+          pageCanvas.width = imgW;
+          pageCanvas.height = sliceH;
+          const ctx = pageCanvas.getContext("2d")!;
+          ctx.drawImage(canvas, 0, offset, imgW, sliceH, 0, 0, imgW, sliceH);
+          const pageImg = pageCanvas.toDataURL("image/png");
+          if (offset > 0) pdf.addPage();
+          pdf.addImage(pageImg, "PNG", 0, 0, pageW, (sliceH * pageW) / imgW);
+          offset += sliceH;
+        }
       }
 
-      printWindow.document.write(`<!DOCTYPE html>
-<html>
-<head>
-  <meta charset="UTF-8" />
-  <title>${name}-resume</title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      font-size: 11pt;
-      color: #111;
-      background: #fff;
-    }
-    .resume-wrapper {
-      width: 210mm;
-      min-height: 297mm;
-      padding: 15mm;
-    }
-    /* Hide lucide SVG icons in print */
-    svg { display: none !important; }
-    /* Restore inline spans that contain icons */
-    span { display: inline !important; }
-    @media print {
-      html, body { width: 210mm; }
-      @page { size: A4; margin: 0; }
-      .resume-wrapper { padding: 15mm; }
-    }
-  </style>
-</head>
-<body>
-  <div class="resume-wrapper">${content}</div>
-  <script>
-    window.onload = function() {
-      setTimeout(function() {
-        window.print();
-        window.close();
-      }, 300);
-    };
-  </script>
-</body>
-</html>`);
-      printWindow.document.close();
+      const name = formData.personalInfo.fullName?.replace(/\s+/g, "-") || "resume";
+      pdf.save(`${name}-resume.pdf`);
 
       toast({
-        title: "تم",
-        description: "احفظ الملف كـ PDF من نافذة الطباعة",
+        title: "✅ تم التحميل",
+        description: "تم حفظ السيرة الذاتية كملف PDF بنجاح",
       });
-    } catch (err) {
-      console.error("PDF generation error:", err);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error("PDF error:", msg, err);
       toast({
-        title: "خطأ",
-        description: "حدث خطأ أثناء توليد الملف.",
+        title: "خطأ في التحميل",
+        description: msg || "حدث خطأ غير متوقع. حاول مجدداً.",
         variant: "destructive",
       });
     } finally {
@@ -120,13 +115,8 @@ export default function Home() {
               size="sm"
               onClick={handleDownloadPDF}
               disabled={isGenerating}
-              data-testid="button-download-mobile"
             >
-              {isGenerating ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <FileDown className="w-4 h-4" />
-              )}
+              {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
             </Button>
           </div>
         </div>
@@ -141,42 +131,25 @@ export default function Home() {
 
       {/* Right Panel: Preview */}
       <div className="hidden lg:flex w-1/2 h-full bg-muted flex-col overflow-hidden">
-        {/* Toolbar */}
         <div className="flex items-center justify-between px-5 py-3 bg-card border-b">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-green-500" />
             <span className="text-xs text-muted-foreground font-medium">معاينة مباشرة</span>
           </div>
-          <Button
-            onClick={handleDownloadPDF}
-            disabled={isGenerating}
-            className="gap-2"
-            data-testid="button-download-pdf"
-          >
+          <Button onClick={handleDownloadPDF} disabled={isGenerating} className="gap-2">
             {isGenerating ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                جارٍ التوليد...
-              </>
+              <><Loader2 className="w-4 h-4 animate-spin" />جارٍ التوليد...</>
             ) : (
-              <>
-                <FileDown className="w-4 h-4" />
-                تحميل PDF (ATS)
-              </>
+              <><FileDown className="w-4 h-4" />تحميل PDF</>
             )}
           </Button>
         </div>
 
-        {/* Preview area */}
         <ScrollArea className="flex-1">
           <div className="py-6 px-4 flex justify-center items-start">
             <div
               className="shadow-2xl ring-1 ring-black/10"
-              style={{
-                transform: "scale(0.68)",
-                transformOrigin: "top center",
-                marginBottom: "-32%",
-              }}
+              style={{ transform: "scale(0.68)", transformOrigin: "top center", marginBottom: "-32%" }}
             >
               <ResumePreview ref={previewRef} data={formData as Resume} />
             </div>
