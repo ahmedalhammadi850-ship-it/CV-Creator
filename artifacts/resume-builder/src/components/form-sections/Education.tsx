@@ -12,9 +12,11 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export function Education() {
   const { control } = useFormContext<Resume>();
+  const { t } = useLanguage();
   const { fields, append, remove } = useFieldArray({
     control,
     name: "education",
@@ -23,7 +25,7 @@ export function Education() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-primary">التعليم (Education)</h3>
+        <h3 className="text-lg font-semibold text-primary">{t.education}</h3>
         <Button
           type="button"
           variant="outline"
@@ -39,7 +41,7 @@ export function Education() {
           }
         >
           <Plus className="w-4 h-4 mr-2" />
-          Add Education
+          {t.addEducation}
         </Button>
       </div>
 
@@ -51,7 +53,7 @@ export function Education() {
             exit={{ opacity: 0, height: 0 }}
             className="text-center p-8 bg-muted/50 rounded-lg border border-dashed text-muted-foreground"
           >
-            Add your education history
+            {t.noEducation}
           </motion.div>
         )}
         {fields.map((field, index) => (
@@ -73,14 +75,14 @@ export function Education() {
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={control}
                     name={`education.${index}.degree`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Degree (الدرجة العلمية)</FormLabel>
+                        <FormLabel>{t.degree}</FormLabel>
                         <FormControl>
                           <Input placeholder="Bachelor of Science" {...field} />
                         </FormControl>
@@ -93,7 +95,7 @@ export function Education() {
                     name={`education.${index}.fieldOfStudy`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Field of Study (مجال الدراسة)</FormLabel>
+                        <FormLabel>{t.fieldOfStudy}</FormLabel>
                         <FormControl>
                           <Input placeholder="Computer Science" {...field} />
                         </FormControl>
@@ -106,7 +108,7 @@ export function Education() {
                     name={`education.${index}.institution`}
                     render={({ field }) => (
                       <FormItem className="col-span-1 md:col-span-2">
-                        <FormLabel>Institution (المؤسسة التعليمية)</FormLabel>
+                        <FormLabel>{t.institution}</FormLabel>
                         <FormControl>
                           <Input placeholder="University of Example" {...field} />
                         </FormControl>
@@ -119,7 +121,7 @@ export function Education() {
                     name={`education.${index}.year`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Year (السنة)</FormLabel>
+                        <FormLabel>{t.year}</FormLabel>
                         <FormControl>
                           <Input placeholder="2016 - 2020" {...field} />
                         </FormControl>
@@ -132,7 +134,7 @@ export function Education() {
                     name={`education.${index}.gpa`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>GPA (المعدل التراكمي) (optional)</FormLabel>
+                        <FormLabel>{t.gpa} {t.optional}</FormLabel>
                         <FormControl>
                           <Input placeholder="3.8/4.0" {...field} />
                         </FormControl>

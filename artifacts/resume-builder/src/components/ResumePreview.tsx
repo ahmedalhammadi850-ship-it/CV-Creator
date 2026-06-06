@@ -1,6 +1,7 @@
 import { Resume } from "@/types/resume";
 import { Mail, Phone, MapPin, Linkedin, Globe, Github } from "lucide-react";
 import React from "react";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface ResumePreviewProps {
   data: Resume;
@@ -8,6 +9,7 @@ interface ResumePreviewProps {
 
 export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps>(
   ({ data }, ref) => {
+    const { t } = useLanguage();
     const {
       personalInfo,
       summary,
@@ -28,6 +30,17 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
       personalInfo.github ||
       personalInfo.website;
 
+    const sectionStyle: React.CSSProperties = {
+      fontSize: "12px",
+      fontWeight: "bold",
+      color: "#1e3a5f",
+      textTransform: "uppercase",
+      letterSpacing: "0.08em",
+      borderBottom: "1px solid #1e3a5f",
+      paddingBottom: "3px",
+      marginBottom: "6px",
+    };
+
     return (
       <div
         ref={ref}
@@ -37,7 +50,7 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
         {/* Header */}
         <header className="text-center mb-5 pb-4 border-b-2 border-[#1e3a5f]">
           <h1 style={{ fontSize: "22px", fontWeight: "bold", color: "#1e3a5f", marginBottom: "4px" }}>
-            {personalInfo.fullName || "الاسم الكامل"}
+            {personalInfo.fullName || (t.lang === "ar" ? "الاسم الكامل" : "Full Name")}
           </h1>
           {personalInfo.jobTitle && (
             <p style={{ fontSize: "13px", color: "#3b5f8a", marginBottom: "6px", fontWeight: "500" }}>
@@ -86,12 +99,10 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
         {/* Content */}
         <div style={{ display: "flex", flexDirection: "column", gap: "14px", fontSize: "11px" }}>
 
-          {/* Professional Summary */}
+          {/* Summary */}
           {summary && (
             <section>
-              <h2 style={{ fontSize: "12px", fontWeight: "bold", color: "#1e3a5f", textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1px solid #1e3a5f", paddingBottom: "3px", marginBottom: "6px" }}>
-                Professional Summary
-              </h2>
+              <h2 style={sectionStyle}>{t.cvSummary}</h2>
               <p style={{ lineHeight: "1.6", color: "#333", fontSize: "11px" }}>{summary}</p>
             </section>
           )}
@@ -99,9 +110,7 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
           {/* Work Experience */}
           {experience.length > 0 && (
             <section>
-              <h2 style={{ fontSize: "12px", fontWeight: "bold", color: "#1e3a5f", textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1px solid #1e3a5f", paddingBottom: "3px", marginBottom: "6px" }}>
-                Work Experience
-              </h2>
+              <h2 style={sectionStyle}>{t.cvExperience}</h2>
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 {experience.map((exp, i) => (
                   <div key={i}>
@@ -113,7 +122,7 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
                         </p>
                       </div>
                       <p style={{ fontSize: "11px", color: "#666", whiteSpace: "nowrap" }}>
-                        {exp.startDate} – {exp.current ? "Present" : exp.endDate}
+                        {exp.startDate} – {exp.current ? t.present : exp.endDate}
                       </p>
                     </div>
                     {exp.description && (
@@ -130,9 +139,7 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
           {/* Projects */}
           {projects.length > 0 && (
             <section>
-              <h2 style={{ fontSize: "12px", fontWeight: "bold", color: "#1e3a5f", textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1px solid #1e3a5f", paddingBottom: "3px", marginBottom: "6px" }}>
-                Projects
-              </h2>
+              <h2 style={sectionStyle}>{t.cvProjects}</h2>
               <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
                 {projects.map((proj, i) => (
                   <div key={i}>
@@ -159,15 +166,13 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
           {/* Education */}
           {education.length > 0 && (
             <section>
-              <h2 style={{ fontSize: "12px", fontWeight: "bold", color: "#1e3a5f", textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1px solid #1e3a5f", paddingBottom: "3px", marginBottom: "6px" }}>
-                Education
-              </h2>
+              <h2 style={sectionStyle}>{t.cvEducation}</h2>
               <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                 {education.map((edu, i) => (
                   <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
                     <div>
                       <p style={{ fontWeight: "bold", fontSize: "11px", color: "#111" }}>
-                        {edu.degree} in {edu.fieldOfStudy}
+                        {edu.degree}{edu.fieldOfStudy ? ` — ${edu.fieldOfStudy}` : ""}
                       </p>
                       <p style={{ fontSize: "11px", color: "#3b5f8a", fontWeight: "600" }}>{edu.institution}</p>
                       {edu.gpa && (
@@ -184,12 +189,10 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
           {/* Skills */}
           {(technicalSkills.length > 0 || softSkills.length > 0) && (
             <section>
-              <h2 style={{ fontSize: "12px", fontWeight: "bold", color: "#1e3a5f", textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1px solid #1e3a5f", paddingBottom: "3px", marginBottom: "6px" }}>
-                Skills
-              </h2>
+              <h2 style={sectionStyle}>{t.cvSkills}</h2>
               {technicalSkills.length > 0 && (
                 <div style={{ marginBottom: "6px" }}>
-                  <p style={{ fontSize: "11px", fontWeight: "bold", color: "#555", marginBottom: "4px" }}>Technical Skills:</p>
+                  <p style={{ fontSize: "11px", fontWeight: "bold", color: "#555", marginBottom: "4px" }}>{t.cvTechnical}</p>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
                     {technicalSkills.map((s, i) => (
                       <span key={i} style={{ fontSize: "11px", padding: "2px 8px", backgroundColor: "#e8f0f7", color: "#1e3a5f", borderRadius: "3px", fontWeight: "500" }}>
@@ -201,7 +204,7 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
               )}
               {softSkills.length > 0 && (
                 <div>
-                  <p style={{ fontSize: "11px", fontWeight: "bold", color: "#555", marginBottom: "4px" }}>Soft Skills:</p>
+                  <p style={{ fontSize: "11px", fontWeight: "bold", color: "#555", marginBottom: "4px" }}>{t.cvSoft}</p>
                   <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}>
                     {softSkills.map((s, i) => (
                       <span key={i} style={{ fontSize: "11px", padding: "2px 8px", border: "1px solid #ccc", color: "#555", borderRadius: "3px" }}>
@@ -219,9 +222,7 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
               {languages.length > 0 && (
                 <section>
-                  <h2 style={{ fontSize: "12px", fontWeight: "bold", color: "#1e3a5f", textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1px solid #1e3a5f", paddingBottom: "3px", marginBottom: "6px" }}>
-                    Languages
-                  </h2>
+                  <h2 style={sectionStyle}>{t.cvLanguages}</h2>
                   {languages.map((lang, i) => (
                     <div key={i} style={{ display: "flex", justifyContent: "space-between", fontSize: "11px", marginBottom: "3px" }}>
                       <span style={{ color: "#111" }}>{lang.name}</span>
@@ -232,9 +233,7 @@ export const ResumePreview = React.forwardRef<HTMLDivElement, ResumePreviewProps
               )}
               {certifications.length > 0 && (
                 <section>
-                  <h2 style={{ fontSize: "12px", fontWeight: "bold", color: "#1e3a5f", textTransform: "uppercase", letterSpacing: "0.08em", borderBottom: "1px solid #1e3a5f", paddingBottom: "3px", marginBottom: "6px" }}>
-                    Certifications
-                  </h2>
+                  <h2 style={sectionStyle}>{t.cvCertifications}</h2>
                   {certifications.map((cert, i) => (
                     <div key={i} style={{ marginBottom: "5px" }}>
                       <p style={{ fontSize: "11px", fontWeight: "bold", color: "#111" }}>{cert.name}</p>

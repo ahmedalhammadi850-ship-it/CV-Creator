@@ -7,13 +7,16 @@ import { Skills } from "./form-sections/Skills";
 import { Languages } from "./form-sections/Languages";
 import { Certifications } from "./form-sections/Certifications";
 import { Separator } from "@/components/ui/separator";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export function ResumeForm() {
+  const { t } = useLanguage();
+
   return (
     <div className="space-y-8 pb-10">
       <div>
-        <h2 className="text-2xl font-bold tracking-tight text-foreground">بناء سيرتك الذاتية</h2>
-        <p className="text-muted-foreground mt-1">أدخل بياناتك في الأقسام أدناه — المعاينة تتحدث فورياً</p>
+        <h2 className="text-2xl font-bold tracking-tight text-foreground">{t.buildTitle}</h2>
+        <p className="text-muted-foreground mt-1">{t.buildSubtitle}</p>
       </div>
 
       <PersonalInfo />

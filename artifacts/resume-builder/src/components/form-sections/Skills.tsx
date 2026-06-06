@@ -12,9 +12,11 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export function Skills() {
   const { control, setValue, watch } = useFormContext<Resume>();
+  const { t } = useLanguage();
   const [techInput, setTechInput] = useState("");
   const [softInput, setSoftInput] = useState("");
 
@@ -50,24 +52,22 @@ export function Skills() {
   };
 
   const removeTechSkill = (skill: string) => {
-    setValue(
-      "technicalSkills",
-      technicalSkills.filter((s) => s !== skill),
-      { shouldValidate: true, shouldDirty: true }
-    );
+    setValue("technicalSkills", technicalSkills.filter((s) => s !== skill), {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
   };
 
   const removeSoftSkill = (skill: string) => {
-    setValue(
-      "softSkills",
-      softSkills.filter((s) => s !== skill),
-      { shouldValidate: true, shouldDirty: true }
-    );
+    setValue("softSkills", softSkills.filter((s) => s !== skill), {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
   };
 
   return (
     <div className="space-y-6">
-      <h3 className="text-lg font-semibold text-primary">المهارات (Skills)</h3>
+      <h3 className="text-lg font-semibold text-primary">{t.skills}</h3>
 
       <div className="space-y-4">
         <FormField
@@ -75,10 +75,10 @@ export function Skills() {
           name="technicalSkills"
           render={() => (
             <FormItem>
-              <FormLabel>Technical Skills (المهارات التقنية)</FormLabel>
+              <FormLabel>{t.technicalSkills}</FormLabel>
               <div className="space-y-2">
                 <Input
-                  placeholder="Type a skill and press Enter (e.g. React, Python)"
+                  placeholder={t.techSkillsPlaceholder}
                   value={techInput}
                   onChange={(e) => setTechInput(e.target.value)}
                   onKeyDown={handleAddTechSkill}
@@ -118,10 +118,10 @@ export function Skills() {
           name="softSkills"
           render={() => (
             <FormItem>
-              <FormLabel>Soft Skills (المهارات الشخصية)</FormLabel>
+              <FormLabel>{t.softSkills}</FormLabel>
               <div className="space-y-2">
                 <Input
-                  placeholder="Type a skill and press Enter (e.g. Leadership, Communication)"
+                  placeholder={t.softSkillsPlaceholder}
                   value={softInput}
                   onChange={(e) => setSoftInput(e.target.value)}
                   onKeyDown={handleAddSoftSkill}

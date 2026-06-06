@@ -13,9 +13,11 @@ import { Button } from "@/components/ui/button";
 import { Plus, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export function Projects() {
   const { control } = useFormContext<Resume>();
+  const { t } = useLanguage();
   const { fields, append, remove } = useFieldArray({
     control,
     name: "projects",
@@ -24,7 +26,7 @@ export function Projects() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-primary">المشاريع (Projects)</h3>
+        <h3 className="text-lg font-semibold text-primary">{t.projects}</h3>
         <Button
           type="button"
           variant="outline"
@@ -40,7 +42,7 @@ export function Projects() {
           }
         >
           <Plus className="w-4 h-4 mr-2" />
-          إضافة مشروع
+          {t.addProject}
         </Button>
       </div>
 
@@ -52,7 +54,7 @@ export function Projects() {
             exit={{ opacity: 0, height: 0 }}
             className="text-center p-8 bg-muted/50 rounded-lg border border-dashed text-muted-foreground"
           >
-            أضف مشروعك الأول
+            {t.noProjects}
           </motion.div>
         )}
         {fields.map((field, index) => (
@@ -82,9 +84,9 @@ export function Projects() {
                     name={`projects.${index}.name`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>اسم المشروع (Project Name)</FormLabel>
+                        <FormLabel>{t.projectName}</FormLabel>
                         <FormControl>
-                          <Input placeholder="نظام إدارة المهام" {...field} data-testid={`input-project-name-${index}`} />
+                          <Input placeholder={t.lang === "ar" ? "نظام إدارة المهام" : "Task Manager App"} {...field} data-testid={`input-project-name-${index}`} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -95,7 +97,7 @@ export function Projects() {
                     name={`projects.${index}.year`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>السنة (Year)</FormLabel>
+                        <FormLabel>{t.year}</FormLabel>
                         <FormControl>
                           <Input placeholder="2024" {...field} data-testid={`input-project-year-${index}`} />
                         </FormControl>
@@ -108,7 +110,7 @@ export function Projects() {
                     name={`projects.${index}.technologies`}
                     render={({ field }) => (
                       <FormItem className="col-span-1 md:col-span-2">
-                        <FormLabel>التقنيات المستخدمة (Technologies)</FormLabel>
+                        <FormLabel>{t.technologies}</FormLabel>
                         <FormControl>
                           <Input placeholder="React, Node.js, PostgreSQL" {...field} data-testid={`input-project-tech-${index}`} />
                         </FormControl>
@@ -121,10 +123,10 @@ export function Projects() {
                     name={`projects.${index}.description`}
                     render={({ field }) => (
                       <FormItem className="col-span-1 md:col-span-2">
-                        <FormLabel>وصف المشروع (Description)</FormLabel>
+                        <FormLabel>{t.projectDesc}</FormLabel>
                         <FormControl>
                           <Textarea
-                            placeholder="وصف مختصر للمشروع وأبرز ما أنجزته..."
+                            placeholder={t.projectDescPlaceholder}
                             className="min-h-[100px]"
                             {...field}
                             data-testid={`textarea-project-desc-${index}`}

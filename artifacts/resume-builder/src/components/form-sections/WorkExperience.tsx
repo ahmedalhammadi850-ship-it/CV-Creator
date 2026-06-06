@@ -14,9 +14,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Plus, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export function WorkExperience() {
   const { control } = useFormContext<Resume>();
+  const { t } = useLanguage();
   const { fields, append, remove } = useFieldArray({
     control,
     name: "experience",
@@ -25,7 +27,7 @@ export function WorkExperience() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-primary">الخبرة العملية (Work Experience)</h3>
+        <h3 className="text-lg font-semibold text-primary">{t.experience}</h3>
         <Button
           type="button"
           variant="outline"
@@ -43,7 +45,7 @@ export function WorkExperience() {
           }
         >
           <Plus className="w-4 h-4 mr-2" />
-          Add Experience
+          {t.addExperience}
         </Button>
       </div>
 
@@ -55,7 +57,7 @@ export function WorkExperience() {
             exit={{ opacity: 0, height: 0 }}
             className="text-center p-8 bg-muted/50 rounded-lg border border-dashed text-muted-foreground"
           >
-            Add your first work experience
+            {t.noExperience}
           </motion.div>
         )}
         {fields.map((field, index) => (
@@ -77,14 +79,14 @@ export function WorkExperience() {
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={control}
                     name={`experience.${index}.title`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Job Title (المسمى الوظيفي)</FormLabel>
+                        <FormLabel>{t.expTitle}</FormLabel>
                         <FormControl>
                           <Input placeholder="Software Engineer" {...field} />
                         </FormControl>
@@ -97,7 +99,7 @@ export function WorkExperience() {
                     name={`experience.${index}.company`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Company (الشركة)</FormLabel>
+                        <FormLabel>{t.expCompany}</FormLabel>
                         <FormControl>
                           <Input placeholder="Tech Corp" {...field} />
                         </FormControl>
@@ -110,7 +112,7 @@ export function WorkExperience() {
                     name={`experience.${index}.city`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>City (المدينة)</FormLabel>
+                        <FormLabel>{t.expCity}</FormLabel>
                         <FormControl>
                           <Input placeholder="San Francisco, CA" {...field} />
                         </FormControl>
@@ -118,14 +120,14 @@ export function WorkExperience() {
                       </FormItem>
                     )}
                   />
-                  
+
                   <div className="grid grid-cols-2 gap-2">
                     <FormField
                       control={control}
                       name={`experience.${index}.startDate`}
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Start Date (تاريخ البدء)</FormLabel>
+                          <FormLabel>{t.expStart}</FormLabel>
                           <FormControl>
                             <Input placeholder="Jan 2020" {...field} />
                           </FormControl>
@@ -140,13 +142,13 @@ export function WorkExperience() {
                         const isCurrent = control._formValues.experience?.[index]?.current;
                         return (
                           <FormItem>
-                            <FormLabel>End Date (تاريخ الانتهاء)</FormLabel>
+                            <FormLabel>{t.expEnd}</FormLabel>
                             <FormControl>
-                              <Input placeholder="Present" disabled={isCurrent} {...field} value={isCurrent ? "" : field.value} />
+                              <Input placeholder={t.present} disabled={isCurrent} {...field} value={isCurrent ? "" : field.value} />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
-                        )
+                        );
                       }}
                     />
                   </div>
@@ -163,9 +165,7 @@ export function WorkExperience() {
                           />
                         </FormControl>
                         <div className="space-y-1 leading-none">
-                          <FormLabel>
-                            I currently work here (أعمل هنا حالياً)
-                          </FormLabel>
+                          <FormLabel>{t.expCurrent}</FormLabel>
                         </div>
                       </FormItem>
                     )}
@@ -176,12 +176,12 @@ export function WorkExperience() {
                     name={`experience.${index}.description`}
                     render={({ field }) => (
                       <FormItem className="col-span-1 md:col-span-2">
-                        <FormLabel>Description (الوصف)</FormLabel>
+                        <FormLabel>{t.expDesc}</FormLabel>
                         <FormControl>
-                          <Textarea 
-                            placeholder="Describe your responsibilities and achievements..." 
+                          <Textarea
+                            placeholder={t.expDescPlaceholder}
                             className="min-h-[100px]"
-                            {...field} 
+                            {...field}
                           />
                         </FormControl>
                         <FormMessage />

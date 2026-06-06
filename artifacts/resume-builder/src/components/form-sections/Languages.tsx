@@ -13,9 +13,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Plus, Trash2 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export function Languages() {
   const { control } = useFormContext<Resume>();
+  const { t } = useLanguage();
   const { fields, append, remove } = useFieldArray({
     control,
     name: "languages",
@@ -24,20 +26,15 @@ export function Languages() {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-primary">اللغات (Languages)</h3>
+        <h3 className="text-lg font-semibold text-primary">{t.languages}</h3>
         <Button
           type="button"
           variant="outline"
           size="sm"
-          onClick={() =>
-            append({
-              name: "",
-              proficiency: "",
-            })
-          }
+          onClick={() => append({ name: "", proficiency: "" })}
         >
           <Plus className="w-4 h-4 mr-2" />
-          Add Language
+          {t.addLanguage}
         </Button>
       </div>
 
@@ -49,7 +46,7 @@ export function Languages() {
             exit={{ opacity: 0, height: 0 }}
             className="text-center p-8 bg-muted/50 rounded-lg border border-dashed text-muted-foreground"
           >
-            Add languages you know
+            {t.noLanguages}
           </motion.div>
         )}
         {fields.map((field, index) => (
@@ -71,14 +68,14 @@ export function Languages() {
                 >
                   <Trash2 className="w-4 h-4" />
                 </Button>
-                
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <FormField
                     control={control}
                     name={`languages.${index}.name`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Language (اللغة)</FormLabel>
+                        <FormLabel>{t.language}</FormLabel>
                         <FormControl>
                           <Input placeholder="English" {...field} />
                         </FormControl>
@@ -91,18 +88,18 @@ export function Languages() {
                     name={`languages.${index}.proficiency`}
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Proficiency (مستوى الإجادة)</FormLabel>
+                        <FormLabel>{t.proficiency}</FormLabel>
                         <Select onValueChange={field.onChange} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger>
-                              <SelectValue placeholder="Select level" />
+                              <SelectValue placeholder={t.selectLevel} />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            <SelectItem value="Beginner">Beginner</SelectItem>
-                            <SelectItem value="Intermediate">Intermediate</SelectItem>
-                            <SelectItem value="Advanced">Advanced</SelectItem>
-                            <SelectItem value="Fluent">Fluent / Native</SelectItem>
+                            <SelectItem value="Beginner">{t.beginner}</SelectItem>
+                            <SelectItem value="Intermediate">{t.intermediate}</SelectItem>
+                            <SelectItem value="Advanced">{t.advanced}</SelectItem>
+                            <SelectItem value="Fluent">{t.fluent}</SelectItem>
                           </SelectContent>
                         </Select>
                         <FormMessage />

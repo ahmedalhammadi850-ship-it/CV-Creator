@@ -12,11 +12,13 @@ import { useToast } from "@/hooks/use-toast";
 import jsPDF from "jspdf";
 // @ts-ignore
 import domtoimage from "dom-to-image-more";
+import { useLanguage } from "@/hooks/useLanguage";
 
 export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
   const { toast } = useToast();
+  const { t, lang, toggleLang } = useLanguage();
 
   const form = useForm<Resume>({
     resolver: zodResolver(resumeSchema),
@@ -34,7 +36,6 @@ export default function Home() {
       const el = previewRef.current;
       const scale = 2;
 
-      // dom-to-image-more renders via SVG foreignObject — fully supports oklch & modern CSS
       const dataUrl = await domtoimage.toPng(el, {
         width: el.scrollWidth * scale,
         height: el.scrollHeight * scale,
@@ -76,18 +77,18 @@ export default function Home() {
 
       const name = formData.personalInfo.fullName?.replace(/\s+/g, "-") || "resume";
       pdf.save(`${name}-resume.pdf`);
-      toast({ title: "✅ تم التحميل", description: "تم حفظ السيرة الذاتية كملف PDF" });
+      toast({ title: t.downloadSuccess, description: t.downloadSuccessDesc });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error("PDF error:", msg, err);
-      toast({ title: "خطأ في التحميل", description: msg, variant: "destructive" });
+      toast({ title: t.downloadError, description: msg, variant: "destructive" });
     } finally {
       setIsGenerating(false);
     }
   };
 
   return (
-    <div className="flex h-screen w-full bg-background overflow-hidden">
+    <div className="flex h-screen w-full bg-background overflow-hidden" dir={t.dir}>
       {/* Left Panel: Form */}
       <div className="w-full lg:w-1/2 h-full border-r flex flex-col bg-card/50">
         <div className="p-4 border-b bg-card flex items-center gap-3">
@@ -95,17 +96,23 @@ export default function Home() {
             CV
           </div>
           <div>
-            <h1 className="font-bold text-base leading-none">منشئ السيرة الذاتية</h1>
-            <p className="text-xs text-muted-foreground mt-0.5">متوافق مع أنظمة ATS</p>
+            <h1 className="font-bold text-base leading-none">{t.appTitle}</h1>
+            <p className="text-xs text-muted-foreground mt-0.5">{t.appSubtitle}</p>
           </div>
-          <div className="ml-auto lg:hidden">
+          <div className="ms-auto flex items-center gap-2">
             <Button
+              variant="outline"
               size="sm"
-              onClick={handleDownloadPDF}
-              disabled={isGenerating}
+              onClick={toggleLang}
+              className="font-semibold text-xs px-3"
             >
-              {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
+              {lang === "ar" ? "EN" : "عربي"}
             </Button>
+            <div className="lg:hidden">
+              <Button size="sm" onClick={handleDownloadPDF} disabled={isGenerating}>
+                {isGenerating ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileDown className="w-4 h-4" />}
+              </Button>
+            </div>
           </div>
         </div>
         <ScrollArea className="flex-1 p-5 lg:p-7">
@@ -122,13 +129,13 @@ export default function Home() {
         <div className="flex items-center justify-between px-5 py-3 bg-card border-b">
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-green-500" />
-            <span className="text-xs text-muted-foreground font-medium">معاينة مباشرة</span>
+            <span className="text-xs text-muted-foreground font-medium">{t.livePreview}</span>
           </div>
           <Button onClick={handleDownloadPDF} disabled={isGenerating} className="gap-2">
             {isGenerating ? (
-              <><Loader2 className="w-4 h-4 animate-spin" />جارٍ التوليد...</>
+              <><Loader2 className="w-4 h-4 animate-spin" />{t.generating}</>
             ) : (
-              <><FileDown className="w-4 h-4" />تحميل PDF</>
+              <><FileDown className="w-4 h-4" />{t.downloadPDF}</>
             )}
           </Button>
         </div>
