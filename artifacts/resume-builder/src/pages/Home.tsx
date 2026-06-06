@@ -5,12 +5,12 @@ import { Resume, resumeSchema, defaultResumeData } from "@/types/resume";
 import { Form } from "@/components/ui/form";
 import { ResumeForm } from "@/components/ResumeForm";
 import { ResumePreview } from "@/components/ResumePreview";
-import { ResumePDF } from "@/components/ResumePDF";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FileDown, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { pdf } from "@react-pdf/renderer";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 export default function Home() {
   const [isGenerating, setIsGenerating] = useState(false);
@@ -26,23 +26,63 @@ export default function Home() {
   const formData = form.watch();
 
   const handleDownloadPDF = async () => {
+    if (!previewRef.current) return;
     setIsGenerating(true);
     try {
-      const blob = await pdf(<ResumePDF data={formData as Resume} />).toBlob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
+      const element = previewRef.current;
+
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff",
+        logging: false,
+        windowWidth: element.scrollWidth,
+        windowHeight: element.scrollHeight,
+      });
+
+      const imgData = canvas.toDataURL("image/jpeg", 0.95);
+      const pdf = new jsPDF({
+        orientation: "portrait",
+        unit: "mm",
+        format: "a4",
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = canvas.width;
+      const imgHeight = canvas.height;
+      const ratio = imgWidth / imgHeight;
+      const pdfImgHeight = pdfWidth / ratio;
+
+      if (pdfImgHeight <= pdfHeight) {
+        pdf.addImage(imgData, "JPEG", 0, 0, pdfWidth, pdfImgHeight);
+      } else {
+        let yOffset = 0;
+        let remaining = imgHeight;
+        while (remaining > 0) {
+          const sliceHeight = Math.min(remaining, (imgWidth * pdfHeight) / pdfWidth);
+          const sliceCanvas = document.createElement("canvas");
+          sliceCanvas.width = imgWidth;
+          sliceCanvas.height = sliceHeight;
+          const ctx = sliceCanvas.getContext("2d")!;
+          ctx.drawImage(canvas, 0, yOffset, imgWidth, sliceHeight, 0, 0, imgWidth, sliceHeight);
+          const sliceData = sliceCanvas.toDataURL("image/jpeg", 0.95);
+          if (yOffset > 0) pdf.addPage();
+          pdf.addImage(sliceData, "JPEG", 0, 0, pdfWidth, (sliceHeight * pdfWidth) / imgWidth);
+          yOffset += sliceHeight;
+          remaining -= sliceHeight;
+        }
+      }
+
       const name = formData.personalInfo.fullName
         ? formData.personalInfo.fullName.replace(/\s+/g, "-")
         : "resume";
-      link.download = `${name}-resume.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      pdf.save(`${name}-resume.pdf`);
+
       toast({
         title: "تم التحميل",
-        description: "تم تحميل السيرة الذاتية بنجاح كملف PDF متوافق مع ATS",
+        description: "تم تحميل السيرة الذاتية بنجاح كملف PDF",
       });
     } catch (err) {
       console.error("PDF generation error:", err);
@@ -120,10 +160,17 @@ export default function Home() {
           </Button>
         </div>
 
-        {/* Preview area */}
+        {/* Preview area — scrollable, full CV visible */}
         <ScrollArea className="flex-1">
-          <div className="py-8 px-6 flex justify-center items-start min-h-full">
-            <div className="shadow-2xl ring-1 ring-black/10 origin-top" style={{ transform: "scale(0.75)", transformOrigin: "top center" }}>
+          <div className="py-6 px-4 flex justify-center items-start">
+            <div
+              className="shadow-2xl ring-1 ring-black/10 origin-top-center"
+              style={{
+                transform: "scale(0.68)",
+                transformOrigin: "top center",
+                marginBottom: "-32%",
+              }}
+            >
               <ResumePreview ref={previewRef} data={formData as Resume} />
             </div>
           </div>
