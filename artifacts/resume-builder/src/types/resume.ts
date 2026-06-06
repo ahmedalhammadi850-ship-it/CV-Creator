@@ -6,18 +6,19 @@ export const personalInfoSchema = z.object({
   email: z.string().email("Invalid email address"),
   phone: z.string().min(1, "Phone is required"),
   location: z.string().min(1, "Location is required"),
-  linkedin: z.string().url("Invalid URL").optional().or(z.literal("")),
-  website: z.string().url("Invalid URL").optional().or(z.literal("")),
+  linkedin: z.string().optional().or(z.literal("")),
+  github: z.string().optional().or(z.literal("")),
+  website: z.string().optional().or(z.literal("")),
 });
 
 export const workExperienceSchema = z.object({
   title: z.string().min(1, "Job title is required"),
   company: z.string().min(1, "Company is required"),
-  city: z.string().min(1, "City is required"),
+  city: z.string().optional().or(z.literal("")),
   startDate: z.string().min(1, "Start date is required"),
   endDate: z.string().optional(),
   current: z.boolean().default(false),
-  description: z.string().min(1, "Description is required"),
+  description: z.string().optional().or(z.literal("")),
 });
 
 export const educationSchema = z.object({
@@ -26,6 +27,13 @@ export const educationSchema = z.object({
   institution: z.string().min(1, "Institution is required"),
   year: z.string().min(1, "Year is required"),
   gpa: z.string().optional(),
+});
+
+export const projectSchema = z.object({
+  name: z.string().min(1, "Project name is required"),
+  description: z.string().min(1, "Description is required"),
+  technologies: z.string().optional().or(z.literal("")),
+  year: z.string().optional().or(z.literal("")),
 });
 
 export const languageSchema = z.object({
@@ -44,6 +52,7 @@ export const resumeSchema = z.object({
   summary: z.string().optional(),
   experience: z.array(workExperienceSchema),
   education: z.array(educationSchema),
+  projects: z.array(projectSchema),
   technicalSkills: z.array(z.string()),
   softSkills: z.array(z.string()),
   languages: z.array(languageSchema),
@@ -54,58 +63,69 @@ export type Resume = z.infer<typeof resumeSchema>;
 
 export const defaultResumeData: Resume = {
   personalInfo: {
-    fullName: "أحمد محمد العلي",
-    jobTitle: "مهندس برمجيات أول",
-    email: "ahmed.ali@email.com",
-    phone: "+966 50 123 4567",
-    location: "الرياض، المملكة العربية السعودية",
-    linkedin: "https://linkedin.com/in/ahmed-ali",
+    fullName: "أحمد عبد الله عقالن الحمادي",
+    jobTitle: "AI Automation Developer | Laravel Developer",
+    email: "devahmedabduallah@gmail.com",
+    phone: "770722520",
+    location: "صنعاء - اليمن",
+    linkedin: "",
+    github: "https://github.com/ahmed-alhamadi",
     website: "",
   },
   summary:
-    "مهندس برمجيات متمرس بخبرة تزيد على 6 سنوات في تطوير تطبيقات الويب والحلول السحابية. متخصص في بناء أنظمة قابلة للتوسع باستخدام تقنيات حديثة. أسعى دائماً إلى تقديم منتجات عالية الجودة وحل المشكلات المعقدة بطرق مبتكرة.",
-  experience: [
-    {
-      title: "مهندس برمجيات أول",
-      company: "شركة الحلول التقنية",
-      city: "الرياض",
-      startDate: "يناير 2022",
-      endDate: "",
-      current: true,
-      description:
-        "قيادة فريق من 5 مطورين لبناء منصة SaaS خدمت أكثر من 50,000 مستخدم.\nتحسين أداء قاعدة البيانات بنسبة 40% من خلال تحسين الاستعلامات والفهارس.\nتصميم وتنفيذ بنية microservices باستخدام Node.js و Docker.",
-    },
-    {
-      title: "مطور Full Stack",
-      company: "مجموعة الابتكار الرقمي",
-      city: "جدة",
-      startDate: "مارس 2019",
-      endDate: "ديسمبر 2021",
-      current: false,
-      description:
-        "تطوير تطبيقات ويب متعددة باستخدام React و Node.js.\nتكامل مع أنظمة الدفع الإلكتروني وبوابات API خارجية.\nتوجيه المطورين الجدد وإجراء مراجعات الكود.",
-    },
-  ],
+    "مطور ويب ومتخصص في أتمتة الأعمال باستخدام الذكاء الاصطناعي، حاصل على درجة البكالوريوس في معلم الحاسوب من جامعة صنعاء. أمتلك خبرة في تطوير تطبيقات الويب باستخدام Laravel وPHP، بالإضافة إلى بناء أنظمة أتمتة ذكية تعتمد على الذكاء الاصطناعي وn8n وواجهات البرمجة API. لدي خبرة في تطوير أنظمة إدارة المحتوى، أنظمة ATS للتوظيف، بوتات تيليجرام الذكية، وحلول أتمتة البريد الإلكتروني وخدمة العملاء.",
+  experience: [],
   education: [
     {
       degree: "بكالوريوس",
-      fieldOfStudy: "هندسة الحاسب الآلي",
-      institution: "جامعة الملك عبدالله للعلوم والتقنية",
-      year: "2019",
-      gpa: "4.7 / 5.0",
+      fieldOfStudy: "معلم حاسوب",
+      institution: "جامعة صنعاء",
+      year: "2025",
+      gpa: "80.99%",
     },
   ],
-  technicalSkills: ["React", "Node.js", "TypeScript", "PostgreSQL", "Docker", "AWS", "Git"],
-  softSkills: ["القيادة", "التواصل", "حل المشكلات", "العمل الجماعي"],
-  languages: [
-    { name: "العربية", proficiency: "متقن" },
-    { name: "الإنجليزية", proficiency: "متقدم" },
-  ],
-  certifications: [
+  projects: [
     {
-      name: "AWS Certified Solutions Architect",
-      issuer: "Amazon Web Services",
+      name: "نظام ATS ذكي للتوظيف باستخدام الذكاء الاصطناعي",
+      description:
+        "تطوير نظام متكامل لإدارة عمليات التوظيف. تحليل وفرز السير الذاتية تلقائياً باستخدام الذكاء الاصطناعي. مطابقة المرشحين مع الوظائف وفق المهارات والخبرات. إرسال إشعارات ورسائل تلقائية للمتقدمين. لوحة تحكم لإدارة الوظائف والمتقدمين.",
+      technologies: "AI, n8n, Laravel, PHP",
+      year: "2024",
+    },
+    {
+      name: "نظام أتمتة البريد الإلكتروني بالذكاء الاصطناعي",
+      description:
+        "تصنيف الرسائل الواردة تلقائياً. إنشاء ردود ذكية على الرسائل. تنظيم البريد حسب الأولوية. تقليل الوقت المستغرق في إدارة البريد الإلكتروني.",
+      technologies: "AI Agents, n8n, API Integration",
+      year: "2024",
+    },
+    {
+      name: "منصة حجز وإدارة المطاعم مع الأتمتة الذكية",
+      description:
+        "إدارة الحجوزات والطلبات. الرد التلقائي على استفسارات العملاء. إرسال تأكيدات الحجز والتنبيهات. ربط النظام مع أدوات الأتمتة والذكاء الاصطناعي.",
+      technologies: "Laravel, MySQL, n8n, Telegram Bots",
+      year: "2024",
+    },
+    {
+      name: "نظام متعدد المستخدمين باستخدام Laravel",
+      description:
+        "إدارة صلاحيات المستخدمين. تسجيل الدخول بواسطة Google وGitHub. إشعارات للمشرف عند تسجيل مستخدم جديد. لوحة تحكم متكاملة للإدارة.",
+      technologies: "Laravel, PHP, MySQL, OAuth",
+      year: "2023",
+    },
+    {
+      name: "نظام ديناميكي متعدد اللغات (عربي / إنجليزي)",
+      description:
+        "إدارة المحتوى بشكل كامل من لوحة التحكم. دعم اللغتين العربية والإنجليزية. استخدام Laravel Components لإعادة استخدام الكود. تطبيق Rate Limiting لتحسين الأداء والحماية.",
+      technologies: "Laravel, PHP, MySQL, JavaScript",
       year: "2023",
     },
   ],
+  technicalSkills: ["PHP", "Laravel", "MySQL", "HTML5", "CSS3", "JavaScript", "React", "AI Automation", "n8n", "Workflow Automation", "API Integration", "Telegram Bots", "Git & GitHub"],
+  softSkills: ["حل المشكلات", "تحليل الأنظمة", "العمل الجماعي"],
+  languages: [
+    { name: "العربية", proficiency: "اللغة الأم" },
+    { name: "الإنجليزية", proficiency: "جيد" },
+  ],
+  certifications: [],
 };

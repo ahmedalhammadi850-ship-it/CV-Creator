@@ -21,23 +21,23 @@ export function PersonalInfo() {
           name="personalInfo.fullName"
           render={({ field }) => (
             <FormItem className="col-span-1 md:col-span-2">
-              <FormLabel>Full Name (الاسم الكامل)</FormLabel>
+              <FormLabel>الاسم الكامل (Full Name)</FormLabel>
               <FormControl>
-                <Input placeholder="John Doe" {...field} />
+                <Input placeholder="أحمد محمد" {...field} data-testid="input-full-name" />
               </FormControl>
               <FormMessage />
             </FormItem>
           )}
         />
-        
+
         <FormField
           control={control}
           name="personalInfo.jobTitle"
           render={({ field }) => (
             <FormItem className="col-span-1 md:col-span-2">
-              <FormLabel>Job Title (المسمى الوظيفي)</FormLabel>
+              <FormLabel>المسمى الوظيفي (Job Title)</FormLabel>
               <FormControl>
-                <Input placeholder="Software Engineer" {...field} />
+                <Input placeholder="مطور ويب" {...field} data-testid="input-job-title" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -49,9 +49,9 @@ export function PersonalInfo() {
           name="personalInfo.email"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Email (البريد الإلكتروني)</FormLabel>
+              <FormLabel>البريد الإلكتروني (Email)</FormLabel>
               <FormControl>
-                <Input type="email" placeholder="john@example.com" {...field} />
+                <Input type="email" placeholder="ahmed@example.com" {...field} data-testid="input-email" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -63,9 +63,9 @@ export function PersonalInfo() {
           name="personalInfo.phone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Phone (رقم الهاتف)</FormLabel>
+              <FormLabel>رقم الهاتف (Phone)</FormLabel>
               <FormControl>
-                <Input type="tel" placeholder="+1 (555) 000-0000" {...field} />
+                <Input type="tel" placeholder="+966 50 000 0000" {...field} data-testid="input-phone" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -77,9 +77,9 @@ export function PersonalInfo() {
           name="personalInfo.location"
           render={({ field }) => (
             <FormItem className="col-span-1 md:col-span-2">
-              <FormLabel>Location (الموقع)</FormLabel>
+              <FormLabel>الموقع (Location)</FormLabel>
               <FormControl>
-                <Input placeholder="San Francisco, CA" {...field} />
+                <Input placeholder="الرياض، المملكة العربية السعودية" {...field} data-testid="input-location" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -91,9 +91,23 @@ export function PersonalInfo() {
           name="personalInfo.linkedin"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>LinkedIn URL (optional)</FormLabel>
+              <FormLabel>LinkedIn (اختياري)</FormLabel>
               <FormControl>
-                <Input type="url" placeholder="https://linkedin.com/in/johndoe" {...field} />
+                <Input placeholder="https://linkedin.com/in/username" {...field} data-testid="input-linkedin" />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={control}
+          name="personalInfo.github"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>GitHub (اختياري)</FormLabel>
+              <FormControl>
+                <Input placeholder="https://github.com/username" {...field} data-testid="input-github" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -104,10 +118,10 @@ export function PersonalInfo() {
           control={control}
           name="personalInfo.website"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel>Website (الموقع الشخصي) (optional)</FormLabel>
+            <FormItem className="col-span-1 md:col-span-2">
+              <FormLabel>الموقع الشخصي (Website) (اختياري)</FormLabel>
               <FormControl>
-                <Input type="url" placeholder="https://johndoe.com" {...field} />
+                <Input placeholder="https://mysite.com" {...field} data-testid="input-website" />
               </FormControl>
               <FormMessage />
             </FormItem>
