@@ -29,70 +29,72 @@ export default function Home() {
     setIsGenerating(true);
 
     try {
-      // Dynamically import html2canvas to avoid SSR issues
       const html2canvas = (await import("html2canvas")).default;
 
-      const canvas = await html2canvas(previewRef.current, {
+      // Strip SVG icons and get clean HTML (inline styles only, no Tailwind/oklch)
+      const clone = previewRef.current.cloneNode(true) as HTMLElement;
+      clone.querySelectorAll("svg").forEach((s) => s.remove());
+      const resumeHTML = clone.outerHTML;
+
+      // Render in an isolated iframe with NO external CSS → avoids oklch crash
+      const iframe = document.createElement("iframe");
+      iframe.style.cssText =
+        "position:fixed;top:-9999px;left:-9999px;width:794px;border:none;visibility:hidden;";
+      document.body.appendChild(iframe);
+
+      const iDoc = iframe.contentDocument!;
+      iDoc.open();
+      iDoc.write(`<!DOCTYPE html><html><head><meta charset="UTF-8">
+        <style>*{box-sizing:border-box;margin:0;padding:0;}body{background:#fff;font-family:Arial,Helvetica,sans-serif;}</style>
+      </head><body>${resumeHTML}</body></html>`);
+      iDoc.close();
+
+      // Let the iframe paint
+      await new Promise((r) => setTimeout(r, 250));
+
+      const target = iDoc.body.firstElementChild as HTMLElement;
+      iframe.style.height = target.scrollHeight + "px";
+
+      const canvas = await html2canvas(target, {
         scale: 2,
-        useCORS: true,
-        allowTaint: true,
         backgroundColor: "#ffffff",
         logging: false,
-        onclone: (_doc: Document, el: HTMLElement) => {
-          // Remove all SVG icons — they can cause html2canvas to fail
-          el.querySelectorAll("svg").forEach((svg) => svg.remove());
-          // Remove any transform from wrapper ancestors
-          el.style.transform = "none";
-          el.style.transformOrigin = "unset";
-        },
+        width: target.scrollWidth,
+        height: target.scrollHeight,
+        windowWidth: target.scrollWidth,
+        windowHeight: target.scrollHeight,
       });
 
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
+      document.body.removeChild(iframe);
 
+      // Build PDF — split into A4 pages if needed
+      const pdf = new jsPDF({ orientation: "portrait", unit: "mm", format: "a4" });
       const pageW = pdf.internal.pageSize.getWidth();
       const pageH = pdf.internal.pageSize.getHeight();
-      const imgW = canvas.width;
-      const imgH = canvas.height;
-      const ratio = imgW / imgH;
+      const pageHeightPx = Math.floor((canvas.width * pageH) / pageW);
+      let offset = 0;
 
-      // If content fits in one page
-      if (pageW / ratio <= pageH) {
-        pdf.addImage(imgData, "PNG", 0, 0, pageW, pageW / ratio);
-      } else {
-        // Multi-page: slice the canvas into A4-sized pages
-        const pageHeightPx = Math.floor((imgW * pageH) / pageW);
-        let offset = 0;
-
-        while (offset < imgH) {
-          const sliceH = Math.min(pageHeightPx, imgH - offset);
-          const pageCanvas = document.createElement("canvas");
-          pageCanvas.width = imgW;
-          pageCanvas.height = sliceH;
-          const ctx = pageCanvas.getContext("2d")!;
-          ctx.drawImage(canvas, 0, offset, imgW, sliceH, 0, 0, imgW, sliceH);
-          const pageImg = pageCanvas.toDataURL("image/png");
-          if (offset > 0) pdf.addPage();
-          pdf.addImage(pageImg, "PNG", 0, 0, pageW, (sliceH * pageW) / imgW);
-          offset += sliceH;
-        }
+      while (offset < canvas.height) {
+        const sliceH = Math.min(pageHeightPx, canvas.height - offset);
+        const sliceCanvas = document.createElement("canvas");
+        sliceCanvas.width = canvas.width;
+        sliceCanvas.height = sliceH;
+        sliceCanvas.getContext("2d")!.drawImage(
+          canvas, 0, offset, canvas.width, sliceH, 0, 0, canvas.width, sliceH
+        );
+        if (offset > 0) pdf.addPage();
+        pdf.addImage(sliceCanvas.toDataURL("image/png"), "PNG", 0, 0, pageW, (sliceH * pageW) / canvas.width);
+        offset += sliceH;
       }
 
       const name = formData.personalInfo.fullName?.replace(/\s+/g, "-") || "resume";
       pdf.save(`${name}-resume.pdf`);
 
-      toast({
-        title: "✅ تم التحميل",
-        description: "تم حفظ السيرة الذاتية كملف PDF بنجاح",
-      });
+      toast({ title: "✅ تم التحميل", description: "تم حفظ السيرة الذاتية كملف PDF" });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       console.error("PDF error:", msg, err);
-      toast({
-        title: "خطأ في التحميل",
-        description: msg || "حدث خطأ غير متوقع. حاول مجدداً.",
-        variant: "destructive",
-      });
+      toast({ title: "خطأ في التحميل", description: msg, variant: "destructive" });
     } finally {
       setIsGenerating(false);
     }
